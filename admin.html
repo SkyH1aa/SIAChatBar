@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>XDD吧 · 管理后台</title>
+  <link rel="stylesheet" href="public/theme.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand"><span class="dot"></span>XDD吧 · 管理后台</div>
+      <div class="spacer"></div>
+      <a href="index.html" class="btn ghost sm">返回主页</a>
+      <button id="logoutBtn" class="btn ghost sm">退出登录</button>
+      <div id="themeSwitcherHost" style="display:inline-flex"></div>
+    </div>
+  </header>
+
+  <!-- 未登录 -->
+  <div id="loginScreen" class="wrap hidden">
+    <div class="panel" style="max-width:380px;margin:40px auto">
+      <h3 style="margin-top:0">管理员登录</h3>
+      <div class="form-field"><label>账号</label><input id="loginUser" class="input" type="text" /></div>
+      <div class="form-field"><label>密码</label><input id="loginPass" class="input" type="password" /></div>
+      <div class="form-error" id="loginError"></div>
+      <button id="loginBtn" class="btn" style="width:100%">登录</button>
+    </div>
+  </div>
+
+  <!-- 后台主体 -->
+  <div id="dashboard" class="wrap hidden">
+    <div class="panel" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:16px">
+      <div>
+        <strong id="whoami">管理员</strong>
+        <span id="permTags" style="margin-left:8px"></span>
+      </div>
+      <nav id="tabs" style="display:flex;flex-wrap:wrap;gap:8px"></nav>
+    </div>
+
+    <!-- 帖子管理 -->
+    <section id="tab-posts" class="panel hidden">
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:14px">
+        <h3 style="margin:0">所有帖子</h3>
+        <select id="postFilter" class="input"></select>
+        <button id="postRefresh" class="btn ghost sm">刷新</button>
+      </div>
+      <div id="postList"></div>
+    </section>
+
+    <!-- 精华聚合管理（需 can_digest 权限） -->
+    <section id="tab-digests" class="panel hidden" style="margin-top:18px">
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:16px 0 14px">
+        <h3 style="margin:0">💎 精华聚合</h3>
+        <button id="digestRefresh" class="btn ghost sm">刷新</button>
+        <span style="color:var(--faint);font-size:12px">在「帖子管理」或主论坛帖子卡片点「💎 加入精华」即可把帖子收录到这里，普通用户可在主论坛「💎 精华」栏浏览。</span>
+      </div>
+      <div id="digestList"></div>
+    </section>
+
+    <!-- 专栏管理（独立标签页；需 can_column 权限） -->
+    <section id="tab-columns" class="panel hidden">
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:16px 0 14px">
+        <h3 style="margin:0">🎓 专栏管理（校友专栏）</h3>
+        <select id="colStatusFilter" class="input" style="min-width:110px">
+          <option value="">全部</option>
+          <option value="pending">待审核</option>
+          <option value="open">已开通</option>
+          <option value="closed">已关闭</option>
+        </select>
+        <input id="colKeyword" class="input" placeholder="搜索专栏名 / 创始人" style="width:240px" />
+        <button id="colMgmtRefresh" class="btn ghost sm">刷新</button>
+      </div>
+      <!-- 指派开通：管理员可直接为用户开通默认模板专栏（不受等级限制），介绍/公告等由用户自行修改 -->
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;border:1px dashed var(--line);border-radius:12px;padding:12px 14px;margin-bottom:14px">
+        <strong style="font-size:14px">✨ 指派开通（默认模板）</strong>
+        <input id="colAssignUser" class="input" placeholder="用户账号或昵称" style="width:240px" />
+        <button id="colAssignBtn" class="btn sm">📤 指派开通</button>
+        <span style="color:var(--faint);font-size:12px">被指派用户将直接获得默认模板专栏（不受等级限制）。</span>
+      </div>
+      <div id="colAdminList">
+        <div class="empty">加载中…</div>
+      </div>
+      <!-- 单个专栏的帖子管理子面板 -->
+      <div id="colAdminDetail" class="hidden" style="margin-top:16px;border:1px solid var(--line);border-radius:12px;padding:14px"></div>
+    </section>
+
+    <!-- 吃瓜审核 -->
+    <section id="tab-review" class="panel hidden">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+        <h3 style="margin:0">吃瓜审核（待审核）</h3>
+        <button id="reviewRefresh" class="btn ghost sm">刷新</button>
+      </div>
+      <div id="reviewList"></div>
+    </section>
+
+    <!-- 举报队列 -->
+    <section id="tab-reports" class="panel hidden">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+        <h3 style="margin:0">举报队列（待处理）</h3>
+        <button id="reportRefresh" class="btn ghost sm">刷新</button>
+      </div>
+      <div id="reportList"></div>
+    </section>
+
+    <!-- 数据看板 -->
+    <section id="tab-dashboard" class="panel hidden">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+        <h3 style="margin:0">数据看板</h3>
+        <button id="dashRefresh" class="btn ghost sm">刷新</button>
+      </div>
+      <div id="dashStats"></div>
+    </section>
+
+    <!-- 审计日志 -->
+    <section id="tab-audit" class="panel hidden">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+        <h3 style="margin:0">操作审计日志</h3>
+        <button id="auditRefresh" class="btn ghost sm">刷新</button>
+      </div>
+      <div style="font-size:12px;color:var(--accent,#e07a5f);margin-bottom:10px">📌 重要操作记录请点每条日志上的「加入留档」，永久保存至留档日志（审计日志仅保留 90 天，会过期清理）。</div>
+      <div id="auditList"></div>
+    </section>
+
+    <!-- 发布/昵称黑名单 -->
+    <section id="tab-blacklist" class="panel hidden">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <select id="blacklistView" class="input" style="min-width:150px">
+            <option value="items">黑名单条目</option>
+            <option value="records">拦截记录</option>
+            <option value="users">封禁用户</option>
+          </select>
+        </div>
+        <button id="blacklistRefresh" class="btn sm ghost">刷新</button>
+      </div>
+      <div id="blkEditor" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px">
+        <select id="blkKind" class="input" style="min-width:120px">
+          <option value="keyword">屏蔽关键词</option>
+          <option value="nickname">屏蔽昵称</option>
+        </select>
+        <input id="blkValue" class="input" placeholder="输入内容（按回车添加）" style="min-width:180px" maxlength="32" />
+        <button id="blkAdd" class="btn sm">添加</button>
+      </div>
+      <div id="banEditor" style="display:none;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px">
+        <input id="banUserQ" class="input" placeholder="输入用户名 / 昵称检索" style="min-width:200px" maxlength="20" />
+        <button id="banUserSearch" class="btn sm">检索</button>
+      </div>
+      <div id="blacklistHint" style="font-size:12px;color:var(--faint);margin-bottom:12px"></div>
+      <div id="blacklistList"></div>
+      <div id="banUserList"></div>
+    </section>
+
+    <!-- 用户统一管理（等级）：仅 can_user_mgmt -->
+    <section id="tab-userMgmt" class="panel hidden">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <input id="userMgmtQ" class="input" placeholder="输入用户名 / 昵称检索" style="min-width:200px" maxlength="20" />
+          <button id="userMgmtSearch" class="btn sm">检索</button>
+        </div>
+        <button id="userMgmtRefresh" class="btn sm ghost">刷新</button>
+      </div>
+      <div style="font-size:12px;color:var(--faint);margin-bottom:12px">
+        列出所有注册用户并查看其个人信息；可编辑用户等级（0=按经验自动计算，1-60=管理员固定设定）。操作会写入审计日志。
+      </div>
+      <div id="userMgmtList"></div>
+    </section>
+
+    <!-- 重置账号密码（仅创始人） -->
+    <section id="tab-resetPwd" class="panel hidden">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <input id="resetQ" class="input" placeholder="输入用户名 / 昵称检索" style="min-width:200px" maxlength="20" />
+          <button id="resetSearch" class="btn sm">检索</button>
+        </div>
+        <button id="resetRefresh" class="btn sm ghost">刷新</button>
+      </div>
+      <div style="font-size:12px;color:var(--faint);margin-bottom:12px">
+        列出所有注册账号，点击「🔑 重置密码」为忘记密码的用户设置新密码（至少 6 位）。该功能<b>仅创始人可用</b>，操作会写入审计日志；被封禁/已注销的账号无法重置。
+      </div>
+      <div id="resetList"></div>
+    </section>
+
+    <!-- 回收站 -->
+    <section id="tab-trash" class="panel hidden">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px">
+        <h3 style="margin:0">回收站（最多 500 条 · 保存 14 天自动清理）</h3>
+        <div style="display:flex;gap:8px">
+          <button id="trashRefresh" class="btn ghost sm">刷新</button>
+          <button id="trashPurgeAll" class="btn sm danger">清空回收站</button>
+        </div>
+      </div>
+      <div id="trashList"></div>
+      <div style="font-size:12px;color:var(--accent,#e07a5f);margin-top:10px">📌 重要信息请点每条帖子上的「加入留档」永久保存至留档日志（不占用回收站额度、不会被自动清理）。</div>
+    </section>
+
+    <!-- 用户删除日志（can_del_log） -->
+    <section id="tab-udellog" class="panel hidden">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px">
+        <h3 style="margin:0">用户删除日志（最多保留 60 天）</h3>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <input id="udelQ" class="input" placeholder="用户名 / 内容 / 话题检索" style="min-width:160px;max-width:220px" maxlength="30" />
+          <input id="udelFrom" class="input" type="date" title="删除时间起" />
+          <input id="udelTo" class="input" type="date" title="删除时间止" />
+          <button id="udelSearch" class="btn sm">过滤</button>
+          <button id="udelRefresh" class="btn sm ghost">刷新</button>
+        </div>
+      </div>
+      <div style="font-size:12px;color:var(--faint);margin-bottom:10px">
+        记录用户<b>自行删除</b>的帖子：作者、发布时间、删除时间与内容。管理员只能「彻底删除」或「加入留档」，无法恢复用户已删除的帖子。<b>重要信息请点「📌 加入留档」永久保存。</b>
+      </div>
+      <div id="udelList"></div>
+    </section>
+
+    <!-- 留档日志（can_archive：查看/删除；全管理员可新增） -->
+    <section id="tab-archive" class="panel hidden">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px">
+        <h3 style="margin:0">留档日志（永久保存）</h3>
+        <div id="archFilterBar" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <select id="archSource" class="input" style="min-width:120px">
+            <option value="">全部来源</option>
+            <option value="trash">回收站</option>
+            <option value="user_del">用户删除日志</option>
+            <option value="audit">审计日志</option>
+            <option value="manual">手动新增</option>
+          </select>
+          <input id="archQ" class="input" placeholder="标题 / 简介 / 内容 / 作者检索" style="min-width:160px;max-width:220px" maxlength="30" />
+          <button id="archSearch" class="btn sm">过滤</button>
+          <button id="archRefresh" class="btn sm ghost">刷新</button>
+        </div>
+      </div>
+      <div id="archHint" style="font-size:12px;color:var(--faint);margin-bottom:10px">
+        📌 <b>重要信息请加入留档日志</b>：永久保存，直到被拥有「留档日志」权限的管理员/创始人手动删除。所有管理员都可将回收站、用户删除日志、审计日志中的内容加入留档，或手动新增留档记录；但仅拥有「留档日志」权限的管理员（和创始人）可查看与删除留档记录。
+      </div>
+        <div id="archAddBox" class="panel" style="box-shadow:none;background:var(--card-soft);border:1px dashed var(--line);margin-bottom:14px">
+        <h4 style="margin:0 0 10px">➕ 手动新增留档</h4>
+        <div class="form-field"><label>标题</label><input id="archAddTitle" class="input" type="text" maxlength="200" /></div>
+        <div class="form-field"><label>简介（建议填写事件背景/重要说明）</label><input id="archAddIntro" class="input" type="text" maxlength="500" /></div>
+        <div class="form-field"><label>正文内容</label><textarea id="archAddBody" class="input" style="width:100%;min-height:70px;resize:vertical;background:var(--input-bg);border:1px solid var(--line);border-radius:10px;color:var(--text);padding:10px 12px" maxlength="6000"></textarea></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+          <button id="archAddBtn" class="btn sm">新增留档</button>
+          <span style="font-size:12px;color:var(--faint)">建议同时注明：发帖时间、删除/屏蔽时间、删除人（管理员/用户）、事件经过等关键信息。</span>
+        </div>
+      </div>
+      <div id="archList"></div>
+    </section>
+
+    <!-- 设备封禁（can_deviceban） -->
+    <section id="tab-deviceban" class="panel hidden">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px">
+        <h3 style="margin:0">设备封禁（设备指纹代替真实 MAC）</h3>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <input id="deviceBanQ" class="input" placeholder="设备指纹 / 用户名 / 原因检索" style="min-width:180px;max-width:240px" maxlength="40" />
+          <button id="deviceBanSearch" class="btn sm">过滤</button>
+          <button id="deviceBanRefresh" class="btn sm ghost">刷新</button>
+        </div>
+      </div>
+      <div style="font-size:12px;color:var(--faint);margin-bottom:10px">
+        浏览器无法读取真实网卡 MAC，这里以「设备指纹」（登录/注册时生成的设备ID）作为设备身份。被永久注销的用户会在此列出其设备，可一键封禁；被封禁的设备将<b>无法再登录、也无法再创建账号</b>。
+      </div>
+      <div class="panel" style="box-shadow:none;background:var(--card-soft);border:1px dashed var(--line);margin-bottom:14px">
+        <h4 style="margin:0 0 10px">➕ 手动封禁设备</h4>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+          <input id="deviceBanInput" class="input" placeholder="设备指纹（可为空，用下方列表一键封禁）" style="min-width:220px;max-width:300px" maxlength="128" />
+          <input id="deviceBanUser" class="input" placeholder="关联用户名（可选）" style="min-width:120px;max-width:160px" maxlength="40" />
+          <input id="deviceBanReason" class="input" placeholder="封禁原因（建议填写）" style="min-width:160px;max-width:220px" maxlength="200" />
+          <button id="deviceBanAddBtn" class="btn sm">封禁</button>
+        </div>
+      </div>
+      <div id="deviceBanList"></div>
+    </section>
+
+    <!-- 顶置管理 -->
+    <section id="tab-pinned" class="panel hidden">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+        <h3 style="margin:0">顶置管理（最多 200 条）</h3>
+        <button id="pinRefresh" class="btn ghost sm">刷新</button>
+      </div>
+      <div id="pinList"></div>
+    </section>
+
+    <!-- 站点开关 -->
+    <section id="tab-site" class="panel hidden">
+      <h3 style="margin-top:0">网站运行开关</h3>
+      <label style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+        <input id="siteOpen" type="checkbox" />
+        <span>开启网站（取消勾选后访客将看到拦截页）</span>
+      </label>
+      <div class="form-field"><label>拦截页大标题</label><input id="haltTitle" class="input" type="text" maxlength="100" /></div>
+      <div class="form-field"><label>拦截页小标题</label><input id="haltSubtitle" class="input" type="text" maxlength="300" /></div>
+      <div class="form-error" id="siteError"></div>
+      <button id="siteSave" class="btn">保存站点设置</button>
+      <hr style="border:none;border-top:1px dashed var(--line);margin:16px 0" />
+      <div style="display:none" id="adminControlBox">
+        <label style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+          <input id="adminReauth" type="checkbox" />
+          <span>要求管理员每 10 分钟重新登录（开启后所有管理员会话 10 分钟过期，须重新登录）</span>
+        </label>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button id="adminReauthSave" class="btn sm">保存重新登录策略</button>
+          <button id="forceRefresh" class="btn sm ghost">强制刷新所有其他端</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 弹窗公告 -->
+    <section id="tab-popups" class="panel hidden">
+      <h3 style="margin-top:0">弹窗公告</h3>
+      <div class="panel" style="box-shadow:none;background:var(--card-soft);border:1px dashed var(--line)">
+        <h4 id="popFormTitle" style="margin:0 0 10px">新建公告</h4>
+        <div class="form-field"><label>标题</label><input id="popTitle" class="input" type="text" maxlength="100" /></div>
+        <div class="form-field"><label>内容</label><textarea id="popContent" class="input" style="width:100%;min-height:80px;resize:vertical;background:var(--input-bg);border:1px solid var(--line);border-radius:10px;color:var(--text);padding:10px 12px" maxlength="2000"></textarea></div>
+        <div style="display:flex;gap:8px">
+          <button id="popCreate" class="btn sm">发布公告</button>
+          <button id="popCancel" class="btn sm ghost hidden">取消编辑</button>
+        </div>
+      </div>
+      <div id="popupList" style="margin-top:14px"></div>
+    </section>
+
+    <!-- 公告栏 -->
+    <section id="tab-announces" class="panel hidden">
+      <h3 style="margin-top:0">公告栏管理</h3>
+      <div class="panel" style="box-shadow:none;background:var(--card-soft);border:1px dashed var(--line)">
+        <h4 id="annFormTitle" style="margin:0 0 10px">新建公告</h4>
+        <div class="form-field"><label>标题（最多 100 字）</label><input id="annTitle" class="input" type="text" maxlength="100" /></div>
+        <div class="form-field"><label>内容（最多 2000 字）</label><textarea id="annContent" class="input" style="width:100%;min-height:80px;resize:vertical;background:var(--input-bg);border:1px solid var(--line);border-radius:10px;color:var(--text);padding:10px 12px" maxlength="2000"></textarea></div>
+        <div class="form-field" style="max-width:220px"><label>排序（数字越小越靠前，0 默认）</label><input id="annSort" class="input" type="number" value="0" /></div>
+        <div style="display:flex;gap:8px">
+          <button id="annCreate" class="btn sm">发布公告</button>
+          <button id="annCancel" class="btn sm ghost hidden">取消编辑</button>
+        </div>
+      </div>
+      <div id="announceList" style="margin-top:14px"></div>
+    </section>
+
+    <!-- Bug 反馈 -->
+    <section id="tab-bugs" class="panel hidden">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+        <h3 style="margin:0">Bug 反馈</h3>
+        <button id="bugRefresh" class="btn ghost sm">刷新</button>
+      </div>
+      <div style="font-size:12px;color:var(--faint);margin-bottom:12px">
+        用户提交的运行问题。绿色=已解决；你可在框内回复留言后保存设置状态并回复。
+      </div>
+      <div id="bugList"></div>
+    </section>
+
+    <!-- 自定义话题管理 -->
+    <section id="tab-topics" class="panel hidden">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+        <h3 style="margin:0">自定义话题管理</h3>
+        <button id="topicRefresh" class="btn ghost sm">刷新</button>
+      </div>
+      <div style="font-size:12px;color:var(--faint);margin-bottom:12px">
+        可删除用户创建的自定义话题（即使是已转永久的话题）。删除后，该话题下的所有帖子及附属评论将一并转入「闲聊」话题。
+      </div>
+      <div id="topicList"></div>
+    </section>
+
+    <!-- 管理员管理（仅创始人） -->
+    <section id="tab-admins" class="panel hidden">
+      <h3 style="margin-top:0">管理员管理（创始人）</h3>
+      <h4 style="margin:0 0 8px">待审核申请</h4>
+      <div id="pendingList"></div>
+      <h4 style="margin:18px 0 8px">在职管理员</h4>
+      <div id="adminList"></div>
+    </section>
+
+    <!-- 校史留名编号管理（仅创始人） -->
+    <section id="tab-legends" class="panel hidden" style="margin-top:18px">
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:0 0 14px">
+        <h3 style="margin:0">🏯 校史编号管理</h3>
+        <button id="legendRefresh" class="btn ghost sm">刷新</button>
+      </div>
+      <div id="legendNext" style="font-size:13px;color:var(--muted);margin-bottom:12px"></div>
+      <h4 style="margin:16px 0 8px">已编号列表</h4>
+      <div id="legendAssigned"></div>
+      <h4 style="margin:18px 0 8px">待编号列表</h4>
+      <div id="legendPending"></div>
+    </section>
+
+    <!-- 认证答主审核 -->
+    <section id="tab-mentor" class="panel hidden" style="margin-top:18px">
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:0 0 14px">
+        <h3 style="margin:0">🎓 学长认证审核</h3>
+        <button id="mentorRefresh" class="btn ghost sm">刷新</button>
+      </div>
+      <div style="font-size:12px;color:var(--faint);margin-bottom:12px">
+        认证答主申请：待审核的可通过或驳回；已通过的可取消认证。
+      </div>
+      <div id="mentorList"></div>
+
+      <!-- 创始人直接指派认证答主（仅创始人） -->
+      <div id="founderMentorAssign" class="panel hidden" style="margin-top:20px;border:1px dashed var(--accent,#e07a5f);border-radius:12px;padding:16px">
+        <h4 style="margin:0 0 4px">👑 创始人直接指派认证答主</h4>
+        <div style="font-size:12px;color:var(--faint);margin-bottom:14px">
+          可<b style="color:var(--text)">不受等级限制</b>，将任一指定账号<b style="color:var(--text)">直接指派</b>为指定话题的认证答主（同一账号/话题存在会直接刷新称号并置为「已通过」）。该操作会写入审计日志。
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end">
+          <div style="flex:1 1 200px;min-width:200px">
+            <div style="font-size:12px;color:var(--muted);margin-bottom:4px">指定账号（输入用户名/昵称过滤）</div>
+            <input id="faUserQ" class="input" type="text" placeholder="输入关键词过滤账号…" style="width:100%" autocomplete="off" />
+            <select id="faUserSel" class="input" style="width:100%;margin-top:8px"></select>
+          </div>
+          <div style="flex:1 1 200px;min-width:200px">
+            <div style="font-size:12px;color:var(--muted);margin-bottom:4px">指定话题（输入过滤）</div>
+            <input id="faTopicQ" class="input" type="text" placeholder="输入关键词过滤话题…" style="width:100%" autocomplete="off" />
+            <select id="faTopicSel" class="input" style="width:100%;margin-top:8px"></select>
+          </div>
+          <div style="flex:1 1 180px;min-width:180px">
+            <div style="font-size:12px;color:var(--muted);margin-bottom:4px">答主称号（可留空默认用话题名）</div>
+            <input id="faAskTitle" class="input" type="text" placeholder="如：专业答主" maxlength="20" style="width:100%" />
+          </div>
+          <button id="faAssign" class="btn">指派为认证答主</button>
+        </div>
+        <div id="faMsg" style="font-size:12px;color:var(--faint);margin-top:10px"></div>
+      </div>
+    </section>
+  </div>
+
+  <!-- 邀请码管理（需 can_invite 权限；若创始人未开启邀请码注册则显示挡板） -->
+  <div id="tab-invite" class="hidden">
+    <section class="panel">
+      <h3 style="margin:0">🔑 邀请码管理</h3>
+      <!-- 创始人开关 -->
+      <div id="inviteToggleRow" style="display:none;margin-top:12px;padding:12px 14px;border:1px solid var(--line);border-radius:12px">
+        <label style="display:flex;align-items:center;gap:8px;font-size:14px">
+          <input type="checkbox" id="founderInviteOn" style="width:16px;height:16px" /> <strong>开启邀请码注册</strong>
+        </label>
+        <div style="font-size:12px;color:var(--muted);margin-top:6px">开启后，新账号注册必须凭「未使用」的邀请码才能成功；不影响已注册账号。此开关仅创始人可用。</div>
+      </div>
+      <div id="inviteStatusHint" style="font-size:13px;color:var(--accent,#e07a5f);margin-top:12px"></div>
+
+      <!-- 已开启：创建 + 列表 -->
+      <div id="invitePanelOpen" class="hidden" style="margin-top:16px">
+        <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:14px">
+          <label style="font-size:13px;color:var(--muted)">创建数量
+            <input id="inviteCount" class="input" type="number" min="1" max="100" value="1" style="width:80px" />
+          </label>
+          <button id="inviteCreateBtn" class="btn sm">生成邀请码</button>
+          <button id="inviteCopyAllBtn" class="btn sm ghost" title="复制全部未使用邀请码">📋 复制全部</button>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+          <span style="font-size:13px;color:var(--muted)">已生成的邀请码（未使用/已使用记录保留 40 天，过期自动删除）</span>
+          <span id="inviteSummary" style="font-size:12px;color:var(--faint)"></span>
+        </div>
+        <div id="inviteList" style="display:flex;flex-direction:column;gap:8px"></div>
+      </div>
+
+      <!-- 未开启：挡板 -->
+      <div id="invitePanelOff" class="hidden" style="margin-top:16px;padding:20px;border:1px dashed var(--line);border-radius:12px;text-align:center;color:var(--muted)">
+        ⏸️ 暂未开启邀请码注册功能<br />
+        <span style="font-size:12px;color:var(--faint)">请由创始人先在「邀请码」页开启邀请码注册后，管理员方可创建与浏览邀请码。</span>
+      </div>
+    </section>
+  </div>
+
+  <!-- 审计原文查看弹窗 -->
+  <div id="auditSrcModal" class="modal-overlay hidden" style="position:fixed;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;z-index:999;padding:20px">
+    <div class="panel" style="max-width:640px;width:100%;max-height:80vh;overflow:auto">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+        <h3 id="auditSrcTitle" style="margin:0">原文查看</h3>
+        <button id="auditSrcClose" class="btn ghost sm">关闭</button>
+      </div>
+      <div id="auditSrcBody" style="font-size:14px;line-height:1.7;white-space:pre-wrap;color:var(--text)"></div>
+    </div>
+  </div>
+
+  <script src="public/sensitive-words.js"></script>
+  <script src="public/theme.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="public/admin.js"></script>
+</body>
+</html>

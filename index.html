@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="XDD吧 · 同学们的匿名讨论广场" />
+  <title>XDD吧 · 匿名讨论广场</title>
+  <link rel="stylesheet" href="public/theme.css" />
+  <style>
+    /* 未登录门禁覆盖层 */
+    .login-gate{position:fixed;inset:0;z-index:80;display:flex;align-items:center;justify-content:center;background:var(--bg,#0f1115);backdrop-filter:blur(2px)}
+    .login-gate.hidden{display:none}
+    .login-gate-card{text-align:center;padding:40px 44px;max-width:420px;border:1px solid var(--line);border-radius:16px;background:var(--card,#15181f);box-shadow:0 20px 60px rgba(0,0,0,.45)}
+    .login-gate-lock{font-size:44px;margin-bottom:10px}
+    .login-gate-card h2{margin:0 0 8px;font-size:22px;color:var(--text,#eceef2)}
+    .login-gate-card p{margin:0 0 18px;color:var(--muted,#a0a6b0);font-size:14px;line-height:1.6}
+    .post-actions{display:flex;flex-wrap:wrap;gap:6px 8px;padding:8px 14px 10px;border-top:1px solid var(--line)}
+    .post-actions .act-btn{display:inline-flex;align-items:center;gap:5px;background:transparent;border:1px solid transparent;color:var(--muted);font-size:13px;cursor:pointer;padding:5px 11px;border-radius:999px;transition:all .15s}
+    .post-actions .act-btn:hover{background:rgba(127,127,127,.12);color:var(--text)}
+    .post-actions .act-btn.adm{color:#ff7b72;border:1px solid rgba(255,123,114,.3);font-size:12px;padding:4px 9px}
+.post-actions .act-btn.adm:hover{background:rgba(255,123,114,.12);color:#ff8f87}
+.admin-actions{display:inline-flex;gap:5px;margin-left:auto;padding-left:4px}
+    .post-actions .like-btn.active{color:var(--accent,#e07a5f);font-weight:600;border-color:rgba(224,122,95,.35);background:rgba(224,122,95,.08)}
+    .post-actions .fav-btn.active{color:#f5b942;font-weight:700;border-color:rgba(245,185,66,.4);background:rgba(245,185,66,.12)}
+    .avatar-wrap{position:relative;display:inline-flex}
+    #bellBtn .notif-badge{position:absolute;top:-4px;right:-4px;min-width:16px;height:16px;border-radius:99px;background:#ff5252;color:#fff;font-size:10px;font-weight:700;line-height:16px;text-align:center;padding:0 3px;box-shadow:0 0 0 2px var(--card-bg,#fff);display:none}
+    #bellBtn .notif-badge.on{display:inline-block}
+    .cmt-toggle .cmt-num{font-variant-numeric:tabular-nums}
+    .post-comments{border-top:1px solid var(--line);padding:10px 14px;background:var(--card-soft)}
+    .post-comments.hidden{display:none}
+    .cmt-empty{color:var(--faint);font-size:13px;padding:8px 0}
+    .cmt-item{padding:7px 0;border-bottom:1px dashed var(--line)}
+    .cmt-item:last-of-type{border-bottom:none}
+    .cmt-head{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:12px;color:var(--muted)}
+    .cmt-head .anonymous{color:var(--faint);font-style:italic}
+    .cmt-replyto{color:var(--accent,#e07a5f)}
+    .cmt-time{margin-left:auto;color:var(--faint);font-size:11px}
+    .cmt-text{font-size:14px;color:var(--text);margin:3px 0 4px;word-break:break-word;white-space:pre-wrap;line-height:1.6}
+    .cmt-reply{background:none;border:none;color:var(--accent,#e07a5f);cursor:pointer;font-size:12px;padding:0}
+    .cmt-compose{margin-top:10px}
+    .cmt-input{width:100%;box-sizing:border-box;background:var(--input-bg);border:1px solid var(--line);color:var(--text);border-radius:8px;padding:8px 10px;font-size:14px;font-family:inherit}
+    .cmt-input:focus{outline:none;border-color:var(--accent,#e07a5f)}
+    .cmt-row{display:flex;gap:8px;margin-top:6px;align-items:center}
+    .cmt-nick{flex:1;min-width:0;background:var(--input-bg);border:1px solid var(--line);color:var(--text);border-radius:8px;padding:7px 10px;font-size:13px;font-family:inherit}
+    .cmt-nick:focus{outline:none;border-color:var(--accent,#e07a5f)}
+    .cmt-bar{display:flex;align-items:center;gap:8px;margin-top:4px;font-size:12px;color:var(--faint)}
+    .cmt-target{flex:1;color:var(--accent,#e07a5f);visibility:hidden}
+    .cmt-target.on{visibility:visible}
+    .cmt-bar .cmt-count,.cmt-count{font-variant-numeric:tabular-nums}
+    .cmt-warn{color:#e05e5e;font-size:12px;margin-top:4px;min-height:14px}
+    .cmt-more-wrap{margin:4px 0;text-align:center}
+    .cmt-more-wrap.hidden{display:none}
+    .cmt-more{background:none;border:1px dashed var(--line);color:var(--muted);border-radius:999px;padding:4px 14px;font-size:12px;cursor:pointer}
+    .cmt-more:hover{color:var(--accent,#e07a5f);border-color:rgba(224,122,95,.4)}
+    /* ============ 公共级论坛新增样式 ============ */
+    .search-box{position:relative;display:flex;align-items:center;max-width:320px}
+    .search-box input{width:100%;min-width:0;background:var(--input-bg);border:1px solid var(--line);color:var(--text);
+      border-radius:999px;padding:7px 30px 7px 14px;font-size:13px;font-family:inherit;transition:width .2s, border-color .2s}
+    .search-box input:focus{outline:none;border-color:var(--accent,#e07a5f)}
+    .search-box .search-clear{position:absolute;right:9px;cursor:pointer;color:var(--faint);display:none;font-size:14px}
+    .sortbar{display:flex;align-items:center;flex-wrap:wrap;gap:10px}
+    .legendhint{margin-left:auto;font-size:12px;color:var(--faint)}
+    .layout2{display:grid;grid-template-columns:1fr 300px;gap:20px;align-items:start}
+    @media (max-width:860px){.layout2{grid-template-columns:1fr}.side-col{display:none}}
+    @media (max-width:720px){
+      .search-box{max-width:none}
+      .brand .tag{display:none}
+    }
+    .side-col{position:sticky;top:70px}
+    .side-title{font-size:14px;margin:0 0 10px;color:var(--text);display:flex;align-items:center;gap:6px}
+    .side-col .panel{padding:16px}
+    .leader-item{display:flex;gap:8px;align-items:flex-start;padding:8px 0;border-bottom:1px dashed var(--line);cursor:pointer}
+    .leader-item:last-child{border-bottom:none}
+    .leader-rank{flex:0 0 20px;text-align:center;font-weight:700;color:var(--faint)}
+    .leader-item:nth-child(1) .leader-rank{color:#ffca3a}
+    .leader-item:nth-child(2) .leader-rank{color:#b8c0d0}
+    .leader-item:nth-child(3) .leader-rank{color:#c98a5a}
+    .leader-main{min-width:0}
+    .leader-title{font-size:13px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:220px}
+    .leader-meta{font-size:11px;color:var(--faint);margin-top:1px}
+    .topicact-link{display:flex;justify-content:space-between;font-size:13px;padding:6px 0;border-bottom:1px dashed var(--line);color:var(--muted)}
+    .topicact-link:last-child{border-bottom:none}
+    .topicact-count{color:var(--accent,#e07a5f);font-weight:600}
+    /* 顶栏用户区 */
+    .user-area{display:flex;align-items:center;gap:8px;position:relative}
+    .avatar{width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:14px;flex:0 0 auto;user-select:none}
+    .user-chip{display:inline-flex;align-items:center;gap:7px;background:transparent;border:1px solid var(--line);color:var(--text);border-radius:999px;padding:4px 12px;cursor:pointer}
+    .user-chip:hover{border-color:var(--accent,#e07a5f)}
+    .u-name{max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .u-level{font-size:11px;color:var(--accent,#e07a5f);font-weight:700}
+    .icon-btn{position:relative;background:var(--input-bg);border:1px solid var(--line);color:var(--muted);width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:15px;display:inline-flex;align-items:center;justify-content:center}
+    .icon-btn:hover{color:var(--text);border-color:var(--accent,#e07a5f)}
+    .dot-badge{position:absolute;top:-2px;right:-2px;min-width:16px;height:16px;padding:0 4px;border-radius:999px;background:#e05e5e;color:#fff;font-size:10px;font-weight:700;display:none;align-items:center;justify-content:center;line-height:1}
+    .dot-badge.on{display:flex}
+    /* 用户下拉 */
+    .user-pop{position:absolute;right:0;top:calc(100% + 6px);min-width:170px;background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:0 8px 30px rgba(0,0,0,.18);z-index:40;padding:6px;display:none}
+    .user-pop.open{display:block}
+    .user-pop .pop-item{display:flex;align-items:center;gap:8px;width:100%;text-align:left;background:none;border:none;color:var(--text);font-size:13px;padding:9px 12px;border-radius:8px;cursor:pointer}
+    .user-pop .pop-item:hover{background:rgba(127,127,127,.12)}
+    .user-pop .pop-sep{height:1px;background:var(--line);margin:5px 8px}
+    /* 通知面板 */
+    .notif-panel{position:fixed;right:14px;top:58px;width:340px;max-height:70vh;overflow:auto;background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:0 10px 40px rgba(0,0,0,.22);z-index:50;display:none}
+    .notif-panel.open{display:block}
+    .notif-head{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid var(--line);font-size:14px;font-weight:600}
+    .notif-item{padding:11px 14px;border-bottom:1px dashed var(--line);cursor:pointer}
+    .notif-item:last-child{border-bottom:none}
+    .notif-item .n-msg{font-size:13px;color:var(--text);line-height:1.5}
+    .notif-item .n-time{font-size:11px;color:var(--faint);margin-top:3px}
+    .notif-item.unread{background:rgba(224,122,95,.06)}
+    .notif-empty{padding:24px;text-align:center;color:var(--faint);font-size:13px}
+    /* 帖子卡片新增 */
+    .post-floor{color:var(--faint);font-size:11px;margin-left:auto}
+    .author-level{font-size:11px;color:var(--accent,#e07a5f);background:rgba(224,122,95,.1);padding:1px 6px;border-radius:999px;margin-left:4px}
+    .own-acts{display:inline-flex;gap:4px;margin-left:6px}
+    .tiny-btn{background:none;border:none;color:var(--muted);cursor:pointer;font-size:12px;padding:2px 6px;border-radius:6px}
+    .tiny-btn:hover{color:var(--accent,#e07a5f);background:rgba(127,127,127,.1)}
+    .tiny-btn.danger:hover{color:#e05e5e}
+    .post-actions .act-btn.is-own{border-color:rgba(224,122,95,.35);color:var(--accent,#e07a5f)}
+    /* 等级特权：推流/助推面板 */
+    .boost-panel{background:linear-gradient(135deg,rgba(189,147,249,.12),rgba(122,162,247,.12));border:1px solid rgba(189,147,249,.35);border-radius:14px;padding:14px 16px;margin-bottom:14px}
+    .boost-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+    .boost-tier{font-weight:700;color:var(--text);font-size:14px}
+    .boost-xp{color:var(--muted);font-size:12px}
+    .boost-metro{display:flex;gap:14px;flex-wrap:wrap}
+    .boost-cell{flex:1;min-width:200px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px}
+    .boost-cell-name{font-size:13px;font-weight:600;color:var(--text);margin-bottom:8px}
+    .boost-bar{height:8px;border-radius:999px;background:var(--card-soft,#eee);overflow:hidden;margin-bottom:6px}
+    .boost-bar i{display:block;height:100%;background:linear-gradient(90deg,#bd93f9,#7aa2f7);border-radius:999px;transition:width .3s}
+    .boost-num{font-size:12px;color:var(--muted)}
+    .boost-hint{font-size:11px;color:var(--faint);margin-top:2px}
+    .boost-go{margin-top:8px;background:rgba(189,147,249,.2);color:#bd93f9;border:1px solid rgba(189,147,249,.4)}
+    /* 评论区新增 */
+    .cmt-bar2{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--faint);margin-bottom:6px}
+    .cmt-floor{color:var(--faint);font-size:11px;margin-left:auto}
+    .filter-author{background:none;border:1px dashed var(--line);color:var(--muted);border-radius:999px;padding:3px 10px;font-size:12px;cursor:pointer}
+    .filter-author.on{color:var(--accent,#e07a5f);border-color:rgba(224,122,95,.4)}
+    /* 搜索态 */
+    .search-banner{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:13px;margin:16px 0 6px}
+    .search-banner .kill{color:var(--accent,#e07a5f);cursor:pointer;border:none;background:none}
+    .empty.ok{min-height:120px}
+    /* 公告栏 */
+    .announce-panel{background:var(--card);border:1px solid var(--line);border-radius:14px;margin-bottom:16px;overflow:hidden}
+    .announce-head{display:flex;align-items:center;gap:8px;padding:11px 14px;cursor:pointer;user-select:none}
+    .announce-head .bell{flex:0 0 auto;font-size:16px}
+    .announce-head .title{flex:0 0 auto;font-weight:700;color:var(--accent,#e07a5f);font-size:14px}
+    .announce-head .count{flex:0 0 auto;background:var(--input-bg);border:1px solid var(--line);color:var(--muted);border-radius:999px;padding:1px 9px;font-size:12px}
+    .announce-head .caret{margin-left:auto;color:var(--faint);font-size:12px;transition:transform .2s}
+    .announce-head.closed .caret{transform:rotate(-90deg)}
+    .announce-body{max-height:320px;overflow:auto}
+    .announce-body.hidden{display:none}
+    .announce-item{padding:10px 14px;border-top:1px dashed var(--line)}
+    .announce-item .a-title{font-size:14px;font-weight:600;color:var(--text)}
+    .announce-item .a-meta{font-size:11px;color:var(--faint);margin-top:2px}
+    .announce-item .a-content{font-size:13px;color:var(--muted);margin-top:6px;white-space:pre-wrap;word-break:break-word;line-height:1.7}
+    .announce-empty{padding:18px;text-align:center;color:var(--faint);font-size:13px}
+    /* ============ 个人主页模态框 ============ */
+    .profile-mask{position:fixed;inset:0;z-index:200;background:rgba(15,15,25,.55);display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(3px)}
+    .profile-card{width:min(560px,96vw);max-height:88vh;display:flex;flex-direction:column;background:var(--card,#fff);border:1px solid var(--line);border-radius:18px;box-shadow:0 20px 60px rgba(0,0,0,.35);overflow:hidden;animation:pfIn .25s ease}
+    @keyframes pfIn{from{opacity:0;transform:translateY(14px) scale(.98)}to{opacity:1;transform:none}}
+    .profile-card-head{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--line);font-size:13px;color:var(--muted)}
+    .profile-card-head .profile-loading{color:var(--faint)}
+    .profile-close{background:none;border:none;font-size:22px;color:var(--muted);cursor:pointer;line-height:1}
+    .profile-close:hover{color:var(--text)}
+    .profile-card-body{overflow:auto;padding:16px}
+    .profile-cview{display:flex;flex-direction:column;gap:12px}
+    .profile-cview-row{display:flex;align-items:center;gap:14px}
+    .profile-avatar{width:54px;height:54px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:800;color:#fff;flex:0 0 auto}
+    .profile-mid{flex:1;min-width:0}
+    .profile-nick{font-size:18px;font-weight:800;color:var(--text);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+    .profile-stats{font-size:12px;color:var(--muted);margin-top:4px;display:flex;gap:8px;flex-wrap:wrap}
+    .profile-editbtn{background:rgba(224,122,95,.14);color:var(--accent,#e07a5f);border:1px solid rgba(224,122,95,.35);border-radius:999px;padding:6px 14px;font-size:13px;cursor:pointer}
+    .profile-editbtn:hover{background:rgba(224,122,95,.22)}
+    .profile-tags{display:flex;gap:6px;flex-wrap:wrap}
+    .profile-tag{background:var(--card-soft,#f1f0eb);border:1px solid var(--line);color:var(--accent,#e07a5f);border-radius:999px;padding:2px 9px;font-size:12px}
+    .profile-rows{display:flex;flex-direction:column;gap:8px}
+    .profile-row{display:flex;gap:10px;font-size:14px;color:var(--text)}
+    .profile-row-label{flex:0 0 70px;color:var(--faint);font-size:12px;padding-top:2px}
+    .profile-row-val{flex:1;word-break:break-word;white-space:pre-wrap}
+    .profedit{display:flex;flex-direction:column;gap:10px}
+    .pf-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    @media(max-width:560px){.pf-grid{grid-template-columns:1fr}}
+    .pf-label{display:flex;flex-direction:column;gap:5px;font-size:13px;color:var(--muted)}
+    .pf-input{background:var(--input-bg,#fff);border:1px solid var(--line);color:var(--text);border-radius:8px;padding:8px 10px;font-size:13px;font-family:inherit}
+    .pf-input:focus{outline:none;border-color:var(--accent,#e07a5f)}
+    .pf-vis{display:flex;flex-wrap:wrap;gap:6px 14px;background:var(--card-soft);border:1px dashed var(--line);border-radius:10px;padding:10px 12px;font-size:12px}
+    .pf-vis-title{width:100%;color:var(--muted);font-weight:600}
+    .pf-err{min-height:16px;font-size:12px;color:#e05e5e}
+    .prof-elite{display:flex;flex-wrap:wrap;gap:8px;background:linear-gradient(135deg,rgba(255,193,90,.12),rgba(189,147,249,.12));border:1px dashed rgba(245,185,66,.4);border-radius:12px;padding:10px 12px}
+    .prof-elite .pf-vis-title{color:var(--accent,#e07a5f)}
+    .prof-sessions{margin-top:14px;border-top:1px solid var(--line,#2a3747);padding-top:10px;display:flex;flex-direction:column;gap:4px}
+    .prof-sessions .pf-vis-title{color:var(--muted);font-weight:700}
+    /* 风云学长+：帖子/评论动态光效背景 */
+    .lightfx{position:relative;overflow:hidden;border-radius:8px}
+    .lightfx::after{content:"";position:absolute;inset:0;background:linear-gradient(120deg,transparent 20%,rgba(224,122,95,.16) 45%,rgba(122,162,247,.2) 60%,transparent 85%);background-size:220% 100%;animation:lxShift 3.4s linear infinite;pointer-events:none}
+    @keyframes lxShift{from{background-position:120% 0}to{background-position:-120% 0}}
+    .post-content.lightfx,.cmt-text.lightfx{position:relative;z-index:1}
+    /* 风云学长+：帖子动态光效作用于整个帖子卡片块（背景扫光，而非仅内容区） */
+    .lightfx-card{position:relative;overflow:hidden}
+    .lightfx-card::after{content:"";position:absolute;inset:0;background:linear-gradient(120deg,transparent 20%,rgba(224,122,95,.10) 45%,rgba(122,162,247,.14) 60%,transparent 85%);background-size:220% 100%;animation:lxShift 3.4s linear infinite;pointer-events:none;z-index:0}
+    .lightfx-card>*{position:relative;z-index:1}
+    /* 发帖特权行 */
+    .composer-priv{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:8px}
+    .composer-priv.hidden{display:none}
+    .composer-priv label{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:6px}
+    .composer-priv select,.composer-priv input{background:var(--input-bg,#fff);border:1px solid var(--line);color:var(--text);border-radius:8px;padding:5px 8px;font-size:12px;font-family:inherit}
+    .composer-priv input[type=datetime-local]{color-scheme:light}
+    html[data-theme=dark] .composer-priv input[type=datetime-local]{color-scheme:dark}
+    .quiz-note{font-size:11px;color:var(--faint);line-height:1.5}
+    .quiz-card{border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:8px;background:var(--card-soft)}
+    .quiz-card-head{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+    .quiz-card-num{font-weight:700;font-size:12.5px;color:var(--muted)}
+    .quiz-card-head select,.quiz-card-head input{background:var(--input-bg);border:1px solid var(--line);color:var(--text);border-radius:8px;padding:5px 8px;font-size:12px;font-family:inherit}
+    .quiz-q{width:100%;box-sizing:border-box;background:var(--input-bg);border:1px solid var(--line);color:var(--text);border-radius:8px;padding:7px 9px;font-size:12.5px;font-family:inherit;margin-bottom:8px}
+    .quiz-q:focus{outline:none;border-color:var(--accent,#e07a5f)}
+    .quiz-opts{display:flex;flex-direction:column;gap:6px}
+    .quiz-fill-hint{font-size:11px;color:var(--faint);padding:2px 0 4px}
+    /* 传说推荐 / 评论置顶 */
+    .badge.recommend{background:rgba(255,193,90,.18);color:#f5b942;border:1px solid rgba(245,185,66,.4)}
+    .pin-cell{color:var(--accent,#e07a5f)}
+    .nickname-link{cursor:pointer}
+    .nickname-link:hover{color:var(--accent,#e07a5f);text-decoration:underline}
+    /* 快捷导航：首页 / 专栏 / 站规（所有屏幕始终可见，移动端不再被挤没） */
+    .quicknav{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;padding:8px 14px 10px;background:var(--bg-soft);border-bottom:1px solid var(--line-soft);position:relative;z-index:20}
+    .qn-item{flex:0 0 auto;display:inline-flex;align-items:center;gap:5px;font-size:13px;font-weight:600;color:var(--text);background:var(--card);border:1px solid var(--line);padding:7px 18px;border-radius:999px;text-decoration:none;transition:color .2s,border-color .2s,transform .15s;box-shadow:var(--shadow-soft)}
+    .qn-item:hover{color:var(--accent);border-color:var(--accent)}
+    .qn-item:active{transform:scale(.97)}
+    .qn-item[data-active]{background:var(--accent);color:#fff;border-color:var(--accent);box-shadow:0 2px 10px var(--accent-soft)}
+    @media(max-width:560px){.quicknav{gap:6px;padding:8px 10px 10px}.qn-item{padding:7px 14px;font-size:12.5px}}
+  </style>
+  <script src="public/sensitive-words.js"></script>
+</head>
+<body>
+  <!-- ================= 顶栏 ================= -->
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <span class="dot"></span>
+        XDD吧
+        <span class="tag">公共论坛</span>
+      </div>
+      <div class="search-box">
+        <input id="searchInput" type="text" placeholder="搜索 内容 / 昵称…" autocomplete="off" />
+        <span id="searchClear" class="search-clear">×</span>
+      </div>
+      <div class="spacer"></div>
+      <span id="userBar"></span>
+      <button id="openAdmin" class="btn ghost sm">管理员</button>
+      <button id="openBugBtn" class="btn ghost sm" title="反馈使用中遇到的问题">🐞 反馈</button>
+      <button id="openCoopBtn" class="btn ghost sm" title="合作咨询">🤝 合作</button>
+      <div id="themeSwitcherHost" style="display:inline-flex"></div>
+    </div>
+  </header>
+
+  <!-- ================= 快捷导航（首页 / 专栏 / 站规） ================= -->
+  <nav class="quicknav" aria-label="快捷导航">
+    <a class="qn-item" href="index.html" data-active>🏠 首页</a>
+    <a class="qn-item" href="columns.html">📚 专栏</a>
+    <a class="qn-item" href="rules.html">📖 站规</a>
+  </nav>
+
+  <!-- ================= 通知面板 ================= -->
+  <div id="notifPanel" class="notif-panel">
+    <div class="notif-head"><span>我的通知</span><button class="tiny-btn danger" id="notifClear">全部已读</button></div>
+    <div id="notifList"></div>
+  </div>
+
+  <!-- ================= 主内容 ================= -->
+  <main class="wrap">
+    <!-- 发布框 -->
+    <section class="panel composer">
+      <textarea id="contentInput" placeholder="说点什么吧…"></textarea>
+      <div class="composer-row">
+        <input id="topicSelectHost" type="hidden" />
+        <select id="topicSelect" class="input"></select>
+        <input id="nicknameInput" class="input grow" type="text" maxlength="24"
+               placeholder="昵称（不填则显示匿名，最多24字）" />
+        <span id="charCount" class="char-count">0 / 500</span>
+        <button id="publishBtn" class="btn">发布</button>
+      </div>
+      <!-- 等级特权发布项：定时/等级可见/投票/连载/信纸/草稿 -->
+      <div id="composerPriv" class="composer-priv hidden">
+        <label>🕒 定时发布 <input id="scheduleAt" type="datetime-local" /></label>
+        <label>🔒 等级可见
+          <select id="minViewLevel"><option value="0">所有等级可见</option></select>
+        </label>
+        <!-- Lv11+ 投票 / 问卷 -->
+        <div id="pollBuilder" class="poll-builder hidden">
+          <div class="poll-builder-row" style="align-items:flex-start">
+            <select id="pollQtype">
+              <option value="">🗳 选择类型…</option>
+              <option value="poll">🗳 投票（单选，至多10个选项）</option>
+              <option value="quiz">📋 问卷（至多20题：单选/多选/填空）</option>
+            </select>
+            <span id="quizTypeNote" class="quiz-note"></span>
+          </div>
+          <div id="quizQuestions"></div>
+          <button type="button" id="addQuestionBtn" class="btn-ds pb-add">＋ 添加题目</button>
+        </div>
+        <!-- Lv21+ 连载模式 -->
+        <div id="seriesBox" class="series-box hidden">
+          <label><input type="checkbox" id="seriesOn" /> 📚 连载模式（多个帖子聚合为一帖，自动生成目录）</label>
+          <div id="seriesFields" class="series-fields hidden">
+            <input id="seriesTitle" placeholder="连载大标题（新建时选中「创建新的连载」后必填）" maxlength="60" />
+            <select id="seriesSelect"><option value="__new__">＋ 创建新的连载</option><option value="">—— 追加到已有连载 ——</option></select>
+            <input id="seriesPartTitle" placeholder="本章小标题（可选）" maxlength="60" />
+          </div>
+        </div>
+        <!-- Lv55+ 校史留名专属信纸 -->
+        <div id="spPanel" class="stationery-panel hidden">
+          <div class="sp-title">✉️ 校史留名专属信纸（动态光效与配色自选搭配，全员可见）</div>
+          <div class="sp-group"><div class="sp-label">边框样式</div><div class="sp-swatches" data-sp="frame"></div></div>
+          <div class="sp-group"><div class="sp-label">字体效果</div><div class="sp-swatches" data-sp="effect"></div></div>
+          <div class="sp-group"><div class="sp-label">光晕颜色</div><div class="sp-swatches" data-sp="glow"></div></div>
+          <div class="sp-group"><div class="sp-label">字体颜色</div><div class="sp-swatches" data-sp="fontcolor"></div></div>
+          <div class="sp-preview" id="spPreview">信纸预览：写下属于校史留名的色彩。</div>
+        </div>
+        <!-- Lv11+ 草稿本地自动保存 -->
+        <div class="draftbar" id="draftBar">
+          <span>💾 草稿会自动保存在本机</span>
+          <button type="button" class="btn-ds" id="draftUse">使用上次草稿</button>
+          <button type="button" class="btn-ds" id="draftClear">清除草稿</button>
+        </div>
+        <span id="privHint" class="hint-line" style="font-size:11px;color:var(--faint)"></span>
+      </div>
+      <div id="composeWarn" class="warn-line"></div>
+      <div id="composeHint" class="hint-line"></div>
+    </section>
+
+    <!-- 话题筛选 + 排序 -->
+    <section class="panel" style="margin-top:16px">
+      <div class="sortbar">
+        <div class="filter-bar" id="filterBar"></div>
+        <span class="legendhint">💡 登录后可编辑/删除自己的内容、收藏与通知</span>
+      </div>
+      <div class="sort-tabs" id="sortTabs" style="margin-top:12px;display:flex;gap:8px">
+        <button class="chip active" data-sort="latest">🕒 最新</button>
+        <button class="chip" data-sort="hot">🔥 最热</button>
+      </div>
+    </section>
+
+    <!-- 搜索态横幅（动态） -->
+    <div id="searchBanner" class="search-banner hidden"></div>
+
+    <!-- 版块 -->
+    <section class="layout2" style="margin-top:18px">
+      <div class="feed-col">
+        <!-- 公告栏 -->
+        <div id="announcePanel" class="announce-panel hidden"></div>
+        <!-- 顶置帖 -->
+        <div id="pinnedSection" class="hidden" style="margin-bottom:8px">
+          <h2 class="section-title">置顶</h2>
+          <div class="feed" id="pinnedFeed"></div>
+        </div>
+        <div id="viewTitle" class="section-title" style="display:none"></div>
+        <div class="feed" id="feed"></div>
+        <div id="emptyState" class="empty hidden">
+          <div class="emoji">🍃</div>
+          这里还没有留言，来发第一条吧
+        </div>
+        <div class="pager hidden" id="pager">
+          <button class="btn ghost sm" id="prevPage">上一页</button>
+          <span class="page-num" id="pageNum">第 1 页</span>
+          <button class="btn ghost sm" id="nextPage">下一页</button>
+        </div>
+      </div>
+
+      <aside class="side-col">
+        <div class="panel">
+          <h3 class="side-title">🔥 热帖榜</h3>
+          <div id="weekHot"></div>
+          <div class="panel" style="margin-top:16px;padding-top:4px">
+            <h3 class="side-title">📈 本周话题活跃度</h3>
+            <div id="topicAct"></div>
+          </div>
+        </div>
+      </aside>
+    </section>
+  </main>
+
+  <!-- ================= 普通用户 登录 / 注册 弹窗 ================= -->
+  <div id="userModal" class="modal-backdrop hidden">
+    <div class="modal-card">
+      <h3 id="userModalTitle">登录 / 注册</h3>
+      <div id="userFormLogin" class="form-body">
+        <div class="form-field">
+          <label>账号</label>
+          <input id="userLoginName" class="input" type="text" autocomplete="username" />
+        </div>
+        <div class="form-field">
+          <label>密码</label>
+          <input id="userLoginPass" class="input" type="password" autocomplete="current-password" />
+        </div>
+        <div class="form-error" id="userLoginError"></div>
+        <button id="userLoginBtn" class="btn" style="width:100%">登录</button>
+        <div style="margin-top:14px;display:flex;justify-content:space-between;font-size:13px">
+          <button class="btn ghost sm" id="switchToUserReg">没有账号？注册</button>
+          <button class="btn ghost sm" id="closeUserModal">关闭</button>
+        </div>
+      </div>
+      <div id="userFormRegister" class="form-body hidden">
+        <div class="form-field">
+          <label>账号（2-20 位中文/字母/数字/下划线，用于登录）</label>
+          <input id="userRegName" class="input" type="text" maxlength="20" autocomplete="username" />
+        </div>
+        <div class="form-field">
+          <label>密码（至少 6 位）</label>
+          <input id="userRegPass" class="input" type="password" autocomplete="new-password" />
+        </div>
+        <div class="form-field hidden" id="inviteField">
+          <label id="inviteFieldLabel">邀请码（当前开启了邀请码注册，必填）</label>
+          <input id="userRegInvite" class="input" type="text" maxlength="8" autocomplete="off" placeholder="请输入邀请码" />
+        </div>
+        <div class="form-field">
+          <label style="font-size:12px;color:var(--faint,#999)">登录后发布将使用你的用户名；注册后仍可在个人中心修改用户名/昵称。</label>
+        </div>
+        <div class="form-error" id="userRegError"></div>
+        <button id="userRegBtn" class="btn" style="width:100%">注册并登录</button>
+        <div style="margin-top:14px;display:flex;justify-content:space-between;font-size:13px">
+          <button class="btn ghost sm" id="switchToUserLogin">返回登录</button>
+          <button class="btn ghost sm" id="closeUserModal2">关闭</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= 举报弹窗 ================= -->
+  <div id="reportModal" class="modal-backdrop hidden">
+    <div class="modal-card" style="max-width:430px">
+      <h3>举报</h3>
+      <div class="form-field">
+        <label>举报理由（必填，管理员将收到）</label>
+        <textarea id="reportReason" class="input" rows="3" maxlength="300" placeholder="请简要说明违规原因…"></textarea>
+      </div>
+      <div class="form-error" id="reportError"></div>
+      <button id="reportSubmitBtn" class="btn" style="width:100%">提交举报</button>
+      <div style="margin-top:14px;text-align:right">
+        <button class="btn ghost sm" id="closeReportModal">取消</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= 管理员登录 / 注册弹窗 ================= -->
+  <div id="adminModal" class="modal-backdrop hidden">
+    <div class="modal-card">
+      <h3 id="adminModalTitle">管理员登录</h3>
+      <div id="adminFormLogin" class="form-body">
+        <div class="form-field">
+          <label>账号</label>
+          <input id="loginUser" class="input" type="text" autocomplete="username" />
+        </div>
+        <div class="form-field">
+          <label>密码</label>
+          <input id="loginPass" class="input" type="password" autocomplete="current-password" />
+        </div>
+        <div class="form-error" id="loginError"></div>
+        <button id="loginBtn" class="btn" style="width:100%">登录</button>
+        <div style="margin-top:14px;display:flex;justify-content:space-between;font-size:13px">
+          <button class="btn ghost sm" id="switchToRegister">注册管理员</button>
+          <button class="btn ghost sm" id="closeModal">关闭</button>
+        </div>
+      </div>
+      <div id="adminFormRegister" class="form-body hidden">
+        <div class="form-field">
+          <label>班级</label>
+          <input id="regClass" class="input" type="text" />
+        </div>
+        <div class="form-field">
+          <label>姓名</label>
+          <input id="regName" class="input" type="text" />
+        </div>
+        <div class="form-field">
+          <label>账号</label>
+          <input id="regUser" class="input" type="text" />
+        </div>
+        <div class="form-field">
+          <label>密码（至少 6 位）</label>
+          <input id="regPass" class="input" type="password" />
+        </div>
+        <div class="form-error" id="regError"></div>
+        <button id="registerBtn" class="btn" style="width:100%">提交申请（需创始人审核）</button>
+        <div style="margin-top:14px;display:flex;justify-content:space-between;font-size:13px">
+          <button class="btn ghost sm" id="switchToLogin">返回登录</button>
+          <button class="btn ghost sm" id="closeModal2">关闭</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= 弹窗公告 ================= -->
+  <div id="popupHost"></div>
+
+  <!-- ================= Bug 反馈弹窗 ================= -->
+  <div id="bugModal" class="modal-backdrop hidden">
+    <div class="modal-card" style="max-width:460px">
+      <h3>🐞 Bug 反馈</h3>
+      <div class="form-body">
+        <div class="form-field">
+          <label>问题类别</label>
+          <select id="bugCategory" class="input">
+            <option value="发帖/收藏/点赞/浏览历史bug">发帖 / 收藏 / 点赞 / 浏览历史 bug</option>
+            <option value="关键词误屏蔽">关键词误屏蔽</option>
+            <option value="使用bug">使用 bug</option>
+            <option value="其他">其他</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label>具体描述（必填，最多 2000 字）</label>
+          <textarea id="bugContent" class="input" rows="5" maxlength="2000"
+                    placeholder="请描述你遇到的步骤与现象。若因关键词被拦截无法发布，请选择「关键词误屏蔽」并粘贴你的原文，管理员核实后会调整屏蔽词。"></textarea>
+        </div>
+        <div id="bugError" class="form-error"></div>
+        <button id="bugSubmitBtn" class="btn" style="width:100%">提交反馈</button>
+        <div style="margin-top:14px;text-align:right">
+          <button class="btn ghost sm" id="closeBugModal">取消</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= 合作咨询弹窗 ================= -->
+  <div id="coopModal" class="modal-backdrop hidden">
+    <div class="modal-card" style="max-width:430px;text-align:center">
+      <h3>🤝 合作咨询</h3>
+      <p style="color:var(--muted);font-size:14px;line-height:1.7;margin:12px 0 6px">
+        添加小吧主微信，洽谈论坛合作事项
+      </p>
+      <div style="margin:14px 0">
+        <div style="font-size:12px;color:var(--faint)">微信号</div>
+        <code id="coopWechat" style="display:inline-block;margin-top:4px;padding:10px 18px;border:1px dashed var(--accent,#e07a5f);border-radius:10px;font-size:20px;letter-spacing:1px;cursor:pointer" title="点击复制">Jay_DouHao</code>
+      </div>
+      <div style="font-size:13px;color:var(--muted)">添加好友时请<b>备注「论坛合作」</b></div>
+      <div style="margin-top:16px;display:flex;gap:8px;justify-content:center">
+        <button class="btn ghost sm" id="closeCoopModal">关闭</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= 站点拦截页 ================= -->
+  <div id="haltPage" class="halt-page hidden">
+    <div class="halt-box">
+      <div class="halo">
+        <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="9"></circle><path d="M9 9l6 6M15 9l-6 6"></path>
+        </svg>
+      </div>
+      <h1 id="haltTitle">XDD吧维护中</h1>
+      <p id="haltSubtitle">网站当前暂停服务，请稍后再来。</p>
+      <button id="haltAdmin" class="btn ghost sm" style="margin-top:18px">管理员登录后台</button>
+    </div>
+  </div>
+
+  <script src="public/theme.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- ================= 未登录强制登入门禁（未登录用户无法查看/使用论坛内容） ================= -->
+  <div id="loginGate" class="login-gate hidden">
+    <div class="login-gate-card">
+      <div class="login-gate-lock">🔒</div>
+      <h2>请先登录</h2>
+      <p>论坛内容仅对登录用户开放，请登录后查看与使用吧。</p>
+      <button id="loginGateBtn" class="btn" style="margin-top:6px">前往登录 / 注册</button>
+      <div style="margin-top:14px">
+        <a class="qn-item" href="rules.html" style="font-size:13px;color:var(--muted,#999)">📖 查看站规</a>
+      </div>
+    </div>
+  </div>
+
+  <script src="public/app.js"></script>
+</body>
+</html>

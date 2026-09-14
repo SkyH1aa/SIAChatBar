@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="XDD吧 · 站规与使用说明" />
+  <title>站规 · XDD吧</title>
+  <link rel="stylesheet" href="public/theme.css" />
+  <style>
+    body{background:var(--bg)}
+    .wrap-rules{max-width:780px;margin:0 auto;padding:28px 18px 60px}
+    .rules-card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:28px 30px}
+    .rules-card h1{font-size:22px;margin:0 0 6px;color:var(--text)}
+    .rules-card .sub{color:var(--muted);font-size:13px;margin-bottom:22px}
+    .rules-card h2{font-size:16px;color:var(--text);margin:26px 0 10px;border-left:3px solid var(--accent,#e07a5f);padding-left:10px}
+    .rules-card p,.rules-card li{color:var(--muted);font-size:14px;line-height:1.95}
+    .rules-card ul{padding-left:20px;margin:8px 0}
+    .rules-card li{margin:6px 0}
+    .rules-card .note{background:var(--card-soft);border:1px dashed var(--line);border-radius:10px;padding:12px 14px;font-size:13px;color:var(--muted);margin-top:14px}
+    .rules-card .note b{color:var(--text)}
+    .rules-table{width:100%;border-collapse:collapse;margin:10px 0;font-size:13px}
+    .rules-table th,.rules-table td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top;line-height:1.6}
+    .rules-table th{background:var(--card-soft);color:var(--text);font-weight:600}
+    .rules-table td{color:var(--muted)}
+    .rules-table .lvl{font-weight:700;color:var(--accent,#e07a5f);white-space:nowrap}
+    .back{display:inline-block;margin-top:26px;color:var(--accent,#e07a5f);text-decoration:none;font-size:14px}
+    /* 快捷导航：首页 / 专栏 / 站规（所有屏幕始终可见） */
+    .quicknav{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;padding:8px 14px 10px;background:var(--bg-soft);border-bottom:1px solid var(--line-soft);position:relative;z-index:20}
+    .qn-item{flex:0 0 auto;display:inline-flex;align-items:center;gap:5px;font-size:13px;font-weight:600;color:var(--text);background:var(--card);border:1px solid var(--line);padding:7px 18px;border-radius:999px;text-decoration:none;transition:color .2s,border-color .2s;box-shadow:var(--shadow-soft)}
+    .qn-item:hover{color:var(--accent,#e07a5f);border-color:var(--accent,#e07a5f)}
+    .qn-item[data-active]{background:var(--accent,#e07a5f);color:#fff;border-color:var(--accent,#e07a5f)}
+    @media(max-width:560px){.quicknav{gap:6px;padding:8px 10px 10px}.qn-item{padding:7px 14px;font-size:12.5px}}
+  </style>
+</head>
+<body>
+  <!-- 快捷导航（首页 / 专栏 / 站规） -->
+  <nav class="quicknav" aria-label="快捷导航">
+    <a class="qn-item" href="index.html">🏠 首页</a>
+    <a class="qn-item" href="columns.html">📚 专栏</a>
+    <a class="qn-item" href="rules.html" data-active>📖 站规</a>
+  </nav>
+  <main class="wrap-rules">
+    <div class="rules-card">
+      <h1>XDD吧 · 站规与使用说明</h1>
+      <div class="sub">公开论坛 · 文明交流 · 内容有归属 · 治理有据可查</div>
+
+      <h2>一、这里是怎样的地方</h2>
+      <p>
+        XDD吧是面向全体同学的公开讨论广场，是一个<b style="color:var(--text)">公共级论坛</b>。你可以不登录
+        <b style="color:var(--text)">匿名发言</b>，也可以<b style="color:var(--text)">注册账号</b>，让内容有归属、可管理、可追踪。
+      </p>
+      <div class="note">
+        <b>固定七大话题</b>（永久不变）：闲聊 · 社团活动 · 食堂 · 宿舍 · 学习 · 吃瓜 · <b>失物招领</b>。此外你还可以<b>自建自定义话题</b>（见第三条）。
+      </div>
+
+      <h2>二、发言基本规则</h2>
+      <ul>
+        <li>不发布违法违规、辱骂歧视、色情低俗或明显恶意的内容；命中<b style="color:var(--text)">敏感词检测</b>会直接拦截并提示具体词条。</li>
+        <li>「吃瓜」板块内容最多 5000 字，需<b style="color:var(--text)">管理员人工审核</b>通过后才公开；其余板块单条最多 500 字，评论最多 250 字。</li>
+        <li>平台至多保留最近 5000 条帖子与 7000 条评论，超出会自动清理最旧内容。</li>
+        <li>请尊重他人隐私，不传播未经同意公开的个人信息。</li>
+        <li>有发帖频次限制（防刷屏），连续恶意发布可能被临时限制。</li>
+      </ul>
+
+      <h2>三、自定义话题规则</h2>
+      <ul>
+        <li>在发布框下拉选择「＋ 新建自定义话题」即可<b style="color:var(--text)">创建新话题</b>，话题名会去空格、去符号、转小写校验，<b>一个话题只能建一次</b>。</li>
+        <li>新话题默认<b style="color:var(--text)">有效期 48 小时</b>；期间每有新帖发布即再<b>续期 48 小时</b>。</li>
+        <li>累计<b style="color:var(--text)">满 15 帖自动转为永久话题</b>，不再过期。</li>
+        <li>过期话题下的帖子、评论会<b>自动转入「闲聊」话题</b>，内容不会丢失。</li>
+        <li>管理员可<b>删除任何自定义话题</b>（包括已转永久的话题），删除后该话题下的全部帖子与评论一并转入「闲聊」。</li>
+      </ul>
+
+      <h2>四、账号与身份</h2>
+      <ul>
+        <li>用<b>用户名</b>注册登录后，发帖/评论会自动署上用户名，并可<b style="color:var(--text)">编辑、删除自己的内容</b>。</li>
+        <li>拥有<b style="color:var(--text)">等级（Lv）</b>与称号：经验来自发帖、评论与被点赞，等级越高说明你越活跃（详见第八条）。</li>
+        <li>「匿名默认、登录可选」——不登录也能正常发帖，只是无法管理自己的历史内容。</li>
+        <li>昵称或账号命中<b style="color:var(--text)">黑名单</b>时将无法注册/发帖；请妥善保管账号密码，勿转借他人。</li>
+        <li>在「我的主页」可<b style="color:var(--text)">修改昵称</b>：新昵称会<b style="color:var(--text)">同时成为你的登录账号名</b>，并同步到你发过的历史帖子/评论；也可在「我的主页」<b style="color:var(--text)">修改登录密码</b>，改后下次登录请使用新密码。</li>
+      </ul>
+
+      <h2>五、互动与查看</h2>
+      <ul>
+        <li>「🔔 通知中心」汇总你<b style="color:var(--text)">被回复、被点赞、专栏频道</b>的全部通知，未读有红点提示；顶栏铃铛即可直达独立通知页，支持「全部已读」。</li>
+        <li>「⭐」<b>收藏</b>感兴趣的帖子；每个账号对同一帖子最多点赞一次，「我的收藏」「我的帖子」可随时回看。</li>
+        <li>顶部搜索框可<b>全文搜索</b>内容与昵称；评论区支持<b style="color:var(--text)">楼层定位、只看楼主</b>。</li>
+        <li>侧栏「🔥 热帖榜」按<b style="color:var(--text)">点赞时间</b>分今日 / 本周 / 本月三档排序，顶置帖也会计入。</li>
+        <li>本站支持日/夜主题自动切换（早 6:00—18:00 浅色，其余深色），登录后也可手动保存偏好。</li>
+      </ul>
+
+      <h2>六、治理与举报</h2>
+      <ul>
+        <li>每条帖子/评论旁都有「🚩 举报」，如实填写理由即可提交给管理员处理。</li>
+        <li>管理员可对帖子/评论进行<b style="color:var(--text)">屏蔽</b>（隐藏但保留）、<b style="color:var(--text)">删除</b>、<b style="color:var(--text)">置顶</b>等操作。</li>
+        <li>被删除的帖子会进入<b style="color:var(--text)">回收站</b>（最多 500 条、保存 14 天、可恢复），管理员可查看被删原帖。</li>
+        <li>管理员的所有治理操作都会写入<b style="color:var(--text)">审计日志</b>（含被删原帖内容），做到有据可查。</li>
+        <li><b style="color:var(--text)">「💎 精华聚合」</b>：管理员可将优质帖子<b style="color:var(--text)">连同其评论</b>一并收入「精华」页；普通用户可<b style="color:var(--text)">浏览、点赞、收藏、评论、举报</b>精华内容，但<b style="color:var(--text)">不能把「精华」当作发帖话题</b>（精华是精选展示，不是投稿分类）。</li>
+        <li>「吃瓜」板块需审核通过后公开；反馈入口「🐞」可提交运行问题与误屏蔽申诉。</li>
+      </ul>
+
+      <h2>七、黑名单与封禁</h2>
+      <ul>
+        <li>发布内容命中<b style="color:var(--text)">黑名单关键词</b>时会被拦截、不发布；命中敏感词还会提示具体词条，可在「🐞 反馈」选择“关键词误屏蔽”申诉。</li>
+        <li><b style="color:var(--text)">昵称/账号黑名单</b>：命中者在注册、发帖、评论时会被阻止。</li>
+        <li>每次拦截都会记录（当前最新 750 条），供管理员查看，但因内容不同而不会重复计数。</li>
+        <li>情节严重者将被<b style="color:var(--text)">封禁账号</b>，并留下审计痕迹，管理员可随时核对。</li>
+      </ul>
+
+      <h2>八、等级与经验（升级规则）</h2>
+      <p style="font-weight:600;color:var(--text);margin:4px 0 8px">经验获取明细</p>
+      <table class="rules-table">
+        <thead>
+          <tr><th>行为</th><th>经验</th><th>说明</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>发一篇帖子</td><td class="lvl">+3</td><td>—</td></tr>
+          <tr><td>发一条评论 / 回复</td><td class="lvl">+1</td><td>—</td></tr>
+          <tr><td>自己的内容被点赞</td><td class="lvl">+1</td><td>本人给自己点赞不计</td></tr>
+          <tr><td>自己的帖子被收藏</td><td class="lvl">+2</td><td>—</td></tr>
+          <tr><td>自己的帖子被加入「💎 精华聚合」</td><td class="lvl">+15</td><td>—</td></tr>
+          <tr><td>自己的帖子获得「🏆 传说推荐」</td><td class="lvl">+20</td><td>—</td></tr>
+          <tr><td>自己的帖子获得管理员「金牌认证」</td><td class="lvl">+20</td><td>—</td></tr>
+          <tr><td>举报内容被管理员采纳</td><td class="lvl">+3</td><td>同一内容只取第一个举报人</td></tr>
+        </tbody>
+      </table>
+      <div class="note">
+        <b>每日上限：</b>通过发帖、评论/回复获取的经验，合计每日最高 <b style="color:var(--text)">50</b>；其余来源（点赞 / 收藏 / 精华 / 传说推荐 / 金牌认证 / 举报）<b style="color:var(--text)">无上限</b>。
+      </div>
+      <ul>
+        <li><b style="color:var(--text)">升级规律：</b>达到 <b style="color:var(--text)">L 级</b>需累计 <b style="color:var(--text)">5×L×(L−1)</b> 经验（即每级跨度为 10 × 当前等级），等级<b style="color:var(--text)">封顶 60</b>。</li>
+        <li><b style="color:var(--text)">扣减：</b>帖子/评论被删除时，对应经验会同步扣除。</li>
+        <li>在帖子/评论区可见作者<b style="color:var(--text)">等级称号徽章</b>，头像下拉菜单可查看自己的经验进度条与<span style="color:var(--text)">当前等级特权</span>。</li>
+      </ul>
+
+      <p style="font-weight:600;color:var(--text);margin:14px 0 4px">具体等级划分（低 → 高，永久固定）</p>
+      <table class="rules-table">
+        <thead>
+          <tr><th>等级</th><th>称号（徽章）</th><th>累计经验区间</th><th>等级特权</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="lvl">Lv.1 – Lv.10</td><td>初来乍到</td><td>0 – 549</td><td>基础功能。</td></tr>
+          <tr><td class="lvl">Lv.11 – Lv.20</td><td>校园萌新</td><td>550 – 2099</td><td>每月 <b style="color:var(--text)">1 次推流</b>（顶置自己的帖子 6 小时）＋<b style="color:var(--text)">发帖可插入投票/问卷</b>（单选/多选/填空）＋<b style="color:var(--text)">帖子草稿自动保存到本地</b>，下次可直接一键使用＋<b style="color:var(--text)">所有单帖字数上限提升 100 字</b>（500→600）＋每月 <b style="color:var(--text)">1 次「帖子误删恢复」</b>（删除后 24 小时内可在特权中心找回）。</td></tr>
+          <tr><td class="lvl">Lv.21 – Lv.35</td><td>校园百事通</td><td>2100 – 6299</td><td>每月 <b style="color:var(--text)">2 次推流</b>（顶置 6 小时）＋<b style="color:var(--text)">创建自定义话题基础时长延长至 96 小时</b>（普通 48 小时）＋<b style="color:var(--text)">帖子可设「连载模式」</b>（多篇自己的帖子聚合为一帖、自动生成目录，后续可继续追加更新）＋<b style="color:var(--text)">所有单帖字数上限再提升 200 字</b>（合计 +300，600→900）＋每月 <b style="color:var(--text)">2 次「帖子误删恢复」</b>（24h 内找回，取高阶档额度，不再沿用萌新的 1 次）。</td></tr>
+          <tr><td class="lvl">Lv.36 – Lv.45</td><td>风云学长</td><td>6300 – 10349</td><td>每月 <b style="color:var(--text)">3 次推流</b>（顶置 12 小时）＋<b style="color:var(--text)">可定时发布帖子</b>＋<b style="color:var(--text)">帖子/评论带动态光效背景</b>＋<b style="color:var(--text)">帖子可设「仅 XX 等级以上可见」</b>（不超过自己等级）＋<b style="color:var(--text)">可置顶自己的评论</b>（每日 2 次）＋<b style="color:var(--text)">可查看自己被举报的历史记录及处理结果</b>＋<b style="color:var(--text)">自己的帖子被收藏</b>时，收藏者收到「你收藏了【风云学长】XXX 的帖子」提示＋<b style="color:var(--text)">可创建「帖子合集」</b>（手动将多篇帖子/连载归为一个系列，自带自定义标题与简介）＋<b style="color:var(--text)">特别关注上限提升至 20 人</b>。</td></tr>
+          <tr><td class="lvl">Lv.46 – Lv.54</td><td>校园传说</td><td>10350 – 14849</td><td>每月 <b style="color:var(--text)">5 次推流</b>（顶置 12 小时）＋每月 <b style="color:var(--text)">1 次助推</b>（立即 +50 经验）＋<b style="color:var(--text)">风云学长全部特权</b>＋<b style="color:var(--text)">可「推荐」他人帖子</b>（带「🏆 传说推荐」标签、作学长背书，推荐后该帖顶置 1 小时，每日最多 3 次）＋<b style="color:var(--text)">可查看自己在全体用户中的等级排名</b>＋<b style="color:var(--text)">全站搜索时，自己的帖子在同级结果中默认靠前</b>。</td></tr>
+          <tr><td class="lvl">Lv.55 – Lv.60</td><td>校史留名</td><td>14850 ＋</td><td>每月 <b style="color:var(--text)">7 次推流</b>（顶置 24 小时）＋每月 <b style="color:var(--text)">1 次助推</b>（立即 +75 经验）＋<b style="color:var(--text)">全部特权</b>＋<b style="color:var(--text)">帖子带「校史留名」淡金发光环绕边框</b>（推流/传说推荐中的该帖呈流动呼吸高光）＋<b style="color:var(--text)">可申请开通个人专栏/文集</b>＋<b style="color:var(--text)">可导出自己的全部帖子数据</b>＋每年毕业季获<b style="color:var(--text)">专属纪念帖/电子证书</b>＋发帖可选<b style="color:var(--text)">「校史留名专属信纸背景」</b>（动态光效、边框、闪光/炫彩/立体字体与光效色/字体色自选搭配，发出去全员可见）。</td></tr>
+          </tbody>
+      </table>
+      <div class="note">
+        <b>推流</b>＝把你的某条帖子临时顶置，到期自动恢复；在「我的帖子」中即可操作，每自然月额度按等级重置、不可跨月累计。<b>助推</b>＝一键立即获得经验奖励，同样按月刷新。<b>传说推荐</b>＝学长学姐为他人帖子的背书，可让好内容被更多人看见。<b>校史留名（Lv.55 – Lv.60，含 55 与 60 两级）</b>是最高称号，其专属「淡金发光环绕边框」会对你的全部帖子生效，推流/传说推荐中的该帖升级为流动呼吸高光，方便校史留名校友的内容在众多帖子中被识别。
+      </div>
+
+      <h2>九、称号视觉形态</h2>
+      <p>称号徽章随等级提升呈现 6 档外观形态，等级越高越具辨识度：</p>
+      <table class="rules-table">
+        <thead>
+          <tr><th>等级</th><th>外观形态</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="lvl">Lv.1 – Lv.10</td><td>普通扁平图标</td></tr>
+          <tr><td class="lvl">Lv.11 – Lv.20</td><td>彩色 + 轻微描边</td></tr>
+          <tr><td class="lvl">Lv.21 – Lv.35</td><td>彩色 + 动态微光</td></tr>
+          <tr><td class="lvl">Lv.36 – Lv.45</td><td>金属质感 + 呼吸光效</td></tr>
+          <tr><td class="lvl">Lv.46 – Lv.54</td><td>水晶 / 琉璃质感 + 粒子拖尾</td></tr>
+          <tr><td class="lvl">Lv.55 – Lv.60</td><td>3D 立体 + 专属配色 + 全站唯一编号「No.xxxxx」（按达到「校史留名」的先后顺序发放，创始人可后台调整）</td></tr>
+        </tbody>
+      </table>
+
+      <h2>十、学长认证体系</h2>
+      <ul>
+        <li><b style="color:var(--text)">校园百事通（Lv.21）及以上</b>可申请成为某话题的<b style="color:var(--text)">「认证答主」</b>——固定话题或已永久化的自定义话题（<b>精选聚合除外</b>）；审核通过后，评论区即显示<b style="color:var(--text)">专属认证标签</b>。每个话题的答主数量<b style="color:var(--text)">不限</b>，但同一账号最多同时担任 <b style="color:var(--text)">3 个</b>话题的认证答主。</li>
+        <li><b style="color:var(--text)">风云学长（Lv.36）及以上</b>可在自己认证的话题内发布<b style="color:var(--text)">「学长答疑帖」</b>——话题内置顶，并系统推送给<b style="color:var(--text)">注册 14 天内</b>的新人。</li>
+        <li><b style="color:var(--text)">校园传说（Lv.46）及以上</b>：学弟学妹发帖时可选择<b style="color:var(--text)">向其认证答主提问</b>，答主亲自回复后，对方会收到<b style="color:var(--text)">仪式感通知</b>。</li>
+        <li>站长（创始人）可在管理后台<b style="color:var(--text)">不受等级限制</b>地<b style="color:var(--text)">直接指派</b>任一指定账号为指定话题的认证答主；此举仅创始人可用，指派会写入审计日志，被指派者会立刻收到站内通知。</li>
+      </ul>
+
+      <h2>十一、其他等级特权</h2>
+      <ul>
+        <li><b style="color:var(--text)">校园百事通（Lv.21）及以上</b>可查看「谁看过我的帖子」的<b style="color:var(--text)">匿名统计</b>（多少人看过、在什么时间段活跃）。</li>
+        <li><b style="color:var(--text)">风云学长（Lv.36）及以上</b>可设置<b style="color:var(--text)">「特别关注」列表</b>（最多 <b style="color:var(--text)">20 人</b>），特别关注的人发帖会<b style="color:var(--text)">第一时间收到推送</b>。</li>
+        <li><b style="color:var(--text)">校园传说（Lv.46）及以上</b>可向全站发送<b style="color:var(--text)">广播弹窗</b>（每周 1 次，用于重要通知 / 招新 / 活动）。</li>
+      </ul>
+
+      <h2>十二、个人主页</h2>
+      <ul>
+        <li>每个注册用户都拥有<b style="color:var(--text)">个人主页</b>：可在「我的主页」中填写<b style="color:var(--text)">联系方式、性别、班级、姓名、个性签名、简介</b>，并设置最多 <b style="color:var(--text)">7 个标签</b>。</li>
+        <li>可以单独控制<b style="color:var(--text)">每项信息是否对他人可见</b>，也可一键关闭「允许他人访问」（关闭后访客只见“暂不开放”提示）。填入内容提交前会进行<b style="color:var(--text)">敏感词 + 黑名单本地检测</b>，不会上传服务器判定。</li>
+        <li>点击任意用户的头像/用户名即可查看其个人主页；<b style="color:var(--text)">管理员在「用户统一管理」中可查看任何人主页的全部字段</b>（即便对方设为私密），以便治理与核实身份。</li>
+        <li>个人主页标签与他人视角的可见性遵循你的设置；请勿发布包含他人隐私的敏感信息。</li>
+      </ul>
+
+      <h2>十三、校友专栏</h2>
+      <ul>
+        <li>「校友专栏」是一方校友的<b style="color:var(--text)">独立小社区</b>：独立的发帖、评论（支持楼层回复）、点赞、置顶、公告与禁言，每个专栏相当于一个自主运营的「小论坛」。</li>
+        <li><b style="color:var(--text)">「校史留名」（Lv.55 – Lv.60）</b>成员可从主页顶栏「专栏」进入，点击「申请开通专栏」，专栏名自动以「校友专栏」结尾，需管理员审核。</li>
+        <li>专栏申请需管理员审核；通过后<b style="color:var(--text)">创始人可管理自己的专栏</b>（置顶/取消置顶专栏帖、编辑/删除帖与评论、编辑专栏名/简介/公告、禁言专栏内某用户）；<b style="color:var(--text)">管理员可在「帖子管理 → 专栏管理」中审核开通/驳回/关闭并管理任意专栏内容</b>。</li>
+        <li>专栏内发帖/评论<b style="color:var(--text)">发布即公开</b>（无需审核）；被点赞/评论会按专栏频道发送站内通知，可在通知中心查看。</li>
+        <li>专栏发帖/评论/获赞的活跃<b style="color:var(--text)">计入主论坛总经验</b>，影响你的等级成长。</li>
+        <li>专栏内容仍遵循全站<b style="color:var(--text)">敏感词 + 黑名单</b>检测，禁言中的用户不能在对应专栏发布内容。</li>
+      </ul>
+
+      <h2>十四、站点运营与技术说明</h2>
+      <ul>
+        <li>管理员可发布<b style="color:var(--text)">公告栏</b>与<b style="color:var(--text)">弹窗公告</b>，重要通知以弹窗展示。</li>
+        <li>「站点开关」可临时关闭网站并显示拦截页，用于维护或特殊情况。</li>
+        <li>普通用户有<b style="color:var(--text)">浏览历史</b>记录；收藏、点赞、评论、黑名单等信息均与账号绑定。</li>
+        <li>所有数据存储在 Supabase 云端，操作通过鉴权的云函数执行，权限按角色细粒度控制。</li>
+      </ul>
+
+      <div class="note">
+        ⚠️ 管理员是服务的守护者，不是内容的作者。访客发布的内容仅代表其个人观点；如遇版权或隐私问题，请联系管理员处理。
+      </div>
+
+      <div class="note" style="border-color:var(--accent,#e07a5f);color:var(--text);font-weight:600">
+        本网站代码结构、云处理以及最终解释权、最终所有权归陈*铭所有，其他任何人无权对本网站终端作出干涉和限制。
+      </div>
+
+      <div class="note" style="font-size:12px">
+        最近修订：2026-09-13 · 降低升级门槛：单级跨度由 12×当前等级 调整为 <b style="color:var(--text)">10×当前等级</b>（累计 5×L×(L−1)，各档经验区间同步更新）；新增等级特权文案——校园萌新+（投票/问卷、本地草稿、+100 字、每月 1 次误删恢复）、校园百事通+（连载模式、+300 字、每月 2 次误删恢复）、风云学长+（查看被举报记录、收藏者提示、帖子合集、特别关注 20 人）、校园传说+（等级排名、搜索置前）、校史留名+（专属信纸背景）；新增<b style="color:var(--text)">创始人可直接指派</b>任意账号为指定话题认证答主（不受等级限制）。
+      </div>
+
+      <a class="back" href="index.html">← 返回XDD吧首页</a>
+    </div>
+  </main>
+
+  <script src="public/theme.js"></script>
+</body>
+</html>
